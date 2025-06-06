@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Signature Generator</title>
+    <style>
+        /* Import multiple Google Fonts for signature variety */
+        @import url('https://fonts.googleapis.com/css2?family=Allura:wght@400&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Kaushan+Script&family=Amatic+SC:wght@400;700&family=Caveat:wght@400;500;600;700&family=Courgette&family=Indie+Flower&family=Shadows+Into+Light&family=Patrick+Hand&family=Permanent+Marker&family=Fredoka+One&family=Comfortaa:wght@300;400;700&family=Lobster&family=Righteous&family=Orbitron:wght@400;700;900&family=Cinzel:wght@400;600&family=Playfair+Display:wght@400;700&family=Abril+Fatface&family=Bungee&family=Creepster&family=Monoton&family=Fontdiner+Swanky&family=Griffy&family=Nosifer&family=Pirata+One&family=Rye&family=Secular+One&family=Special+Elite&family=Trade+Winds&family=Uncial+Antiqua&family=Vast+Shadow&family=Voltaire&family=Warnes&family=Yellowtail&family=Zen+Dots&family=Zilla+Slab:wght@300;400;700');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .signature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .signature-preview {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signature-text {
+            text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .signature-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .signature-number {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .signature-style {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: #17a2b8;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .signatures-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Advanced Signature Generator</h1>
+            <p>Generate 100 unique signature variants in various styles</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" placeholder="Enter your first name" required>
+                </div>
+                <div class="input-field">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" placeholder="Enter your last name" required>
+                </div>
+                <button class="generate-btn" onclick="generateSignatures()">
+                    Generate Signatures
+                </button>
+            </div>
+        </div>
+
+        <div id="errorContainer"></div>
+        <div id="statsContainer"></div>
+        <div id="loadingContainer"></div>
+        <div id="signaturesContainer"></div>
+    </div>
+
+    <script>
+        // Configuration object for signature generation
+        const CONFIG = {
+            SIGNATURE_COUNT: 100,
+            GENERATION_DELAY: 10, // milliseconds between signature generation
+            COPY_FEEDBACK_DURATION: 2000, // milliseconds
+            MAX_NAME_LENGTH: 50,
+            MIN_NAME_LENGTH: 1
+        };
+
+        // Comprehensive font families for different signature styles
+        const FONT_FAMILIES = [
+            // Elegant Script Fonts
+            'Allura', 'Dancing Script', 'Great Vibes', 'Satisfy', 'Kaushan Script',
+            'Yellowtail', 'Courgette', 'Lobster', 'Pacifico',
+            
+            // Casual Handwriting
+            'Caveat', 'Indie Flower', 'Shadows Into Light', 'Patrick Hand', 'Amatic SC',
+            
+            // Bold & Unique
+            'Permanent Marker', 'Fredoka One', 'Righteous', 'Bungee', 'Abril Fatface',
+            
+            // Modern & Futuristic
+            'Orbitron', 'Monoton', 'Zen Dots', 'Voltaire',
+            
+            // Classical & Serif
+            'Cinzel', 'Playfair Display', 'Uncial Antiqua',
+            
+            // Quirky & Fun
+            'Creepster', 'Griffy', 'Nosifer', 'Pirata One', 'Rye', 'Trade Winds',
+            'Fontdiner Swanky', 'Special Elite', 'Warnes', 'Vast Shadow',
+            
+            // Clean & Professional
+            'Comfortaa', 'Secular One', 'Zilla Slab'
+        ];
+
+        // Different signature style categories
+        const SIGNATURE_STYLES = [
+            'Elegant Script', 'Bold Signature', 'Minimalist', 'Decorative', 'Modern',
+            'Classical', 'Artistic', 'Professional', 'Casual', 'Vintage',
+            'Futuristic', 'Handwritten', 'Stylized', 'Ornate', 'Simple'
+        ];
+
+        // Color schemes for signatures
+        const COLOR_SCHEMES = [
+            '#000000', '#1a1a1a', '#2c3e50', '#34495e', '#7f8c8d',
+            '#27ae60', '#2980b9', '#8e44ad', '#e74c3c', '#f39c12',
+            '#d35400', '#c0392b', '#9b59b6', '#3498db', '#1abc9c',
+            '#16a085', '#f1c40f', '#e67e22', '#e74c3c', '#95a5a6'
+        ];
+
+        // Text decorations and effects
+        const TEXT_DECORATIONS = [
+            'none', 'underline', 'overline', 'line-through'
+        ];
+
+        // Text transformations
+        const TEXT_TRANSFORMS = [
+            'none', 'uppercase', 'lowercase', 'capitalize'
+        ];
+
+        // Font weights
+        const FONT_WEIGHTS = [
+            '300', '400', '500', '600', '700', '800', '900'
+        ];
+
+        // Letter spacing values
+        const LETTER_SPACINGS = [
+            '-2px', '-1px', '0px', '1px', '2px', '3px', '4px', '5px'
+        ];
+
+        // Global variables
+        let generatedSignatures = [];
+        let isGenerating = false;
+
+        /**
+         * Input validation function
+         * @param {string} firstName - User's first name
+         * @param {string} lastName - User's last name
+         * @returns {object} - Validation result with isValid boolean and error message
+         */
+        function validateInput(firstName, lastName) {
+            const errors = [];
+
+            // Check if names are provided
+            if (!firstName.trim()) {
+                errors.push('First name is required');
+            }
+            if (!lastName.trim()) {
+                errors.push('Last name is required');
+            }
+
+            // Check name length constraints
+            if (firstName.length > CONFIG.MAX_NAME_LENGTH) {
+                errors.push(`First name must be ${CONFIG.MAX_NAME_LENGTH} characters or less`);
+            }
+            if (lastName.length > CONFIG.MAX_NAME_LENGTH) {
+                errors.push(`Last name must be ${CONFIG.MAX_NAME_LENGTH} characters or less`);
+            }
+
+            // Check for invalid characters (basic validation)
+            const validNamePattern = /^[a-zA-Z\s\-\'\.]+$/;
+            if (firstName.trim() && !validNamePattern.test(firstName)) {
+                errors.push('First name contains invalid characters');
+            }
+            if (lastName.trim() && !validNamePattern.test(lastName)) {
+                errors.push('Last name contains invalid characters');
+            }
+
+            return {
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        }
+
+        /**
+         * Display error messages to the user
+         * @param {Array} errors - Array of error messages
+         */
+        function displayErrors(errors) {
+            const errorContainer = document.getElementById('errorContainer');
+            if (errors.length > 0) {
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        <strong>Please fix the following errors:</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            ${errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                errorContainer.innerHTML = '';
+            }
+        }
+
+        /**
+         * Generate a random integer between min and max (inclusive)
+         * @param {number} min - Minimum value
+         * @param {number} max - Maximum value
+         * @returns {number} - Random integer
+         */
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        /**
+         * Get a random element from an array
+         * @param {Array} array - Array to select from
+         * @returns {*} - Random element
+         */
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        /**
+         * Generate CSS text shadow for signature effects
+         * @returns {string} - CSS text-shadow value
+         */
+        function generateTextShadow() {
+            const shadows = [
+                'none',
+                '1px 1px 2px rgba(0,0,0,0.3)',
+                '2px 2px 4px rgba(0,0,0,0.5)',
+                '0px 0px 10px rgba(0,0,0,0.5)',
+                '3px 3px 0px rgba(0,0,0,0.2)',
+                '1px 1px 0px #000',
+                '2px 2px 0px rgba(0,0,0,0.3), 4px 4px 0px rgba(0,0,0,0.2)',
+                'inset 0px 1px 0px rgba(255,255,255,0.4)',
+                '0px 1px 3px rgba(0,0,0,0.4)',
+                '1px 1px 10px rgba(255,255,255,0.8)'
+            ];
+            return getRandomElement(shadows);
+        }
+
+        /**
+         * Generate background gradient for signature cards
+         * @returns {string} - CSS background value
+         */
+        function generateBackground() {
+            const backgrounds = [
+                'transparent',
+                'linear-gradient(45deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))',
+                'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.1))',
+                'radial-gradient(circle, rgba(255,255,255,0.1), transparent)',
+                'linear-gradient(90deg, rgba(255,255,255,0.05), rgba(0,0,0,0.05), rgba(255,255,255,0.05))',
+                'conic-gradient(from 0deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05), rgba(255,255,255,0.1))'
+            ];
+            return getRandomElement(backgrounds);
+        }
+
+        /**
+         * Generate a unique signature style object
+         * @param {number} index - Signature index for uniqueness
+         * @returns {object} - Signature style configuration
+         */
+        function generateSignatureStyle(index) {
+            // Ensure uniqueness by using index as a seed for some properties
+            const fontFamily = FONT_FAMILIES[index % FONT_FAMILIES.length];
+            const baseSize = 16 + (index % 40); // Font size between 16px and 56px
+            
+            return {
+                fontFamily: fontFamily,
+                fontSize: `${baseSize}px`,
+                fontWeight: getRandomElement(FONT_WEIGHTS),
+                color: getRandomElement(COLOR_SCHEMES),
+                textDecoration: getRandomElement(TEXT_DECORATIONS),
+                textTransform: getRandomElement(TEXT_TRANSFORMS),
+                letterSpacing: getRandomElement(LETTER_SPACINGS),
+                textShadow: generateTextShadow(),
+                background: generateBackground(),
+                fontStyle: Math.random() > 0.7 ? 'italic' : 'normal',
+                textAlign: getRandomElement(['left', 'center', 'right']),
+                lineHeight: (1 + Math.random() * 0.8).toFixed(2), // 1.0 to 1.8
+                wordSpacing: `${getRandomInt(-2, 8)}px`,
+                transform: Math.random() > 0.8 ? `rotate(${getRandomInt(-5, 5)}deg)` : 'none',
+                opacity: Math.random() > 0.9 ? (0.7 + Math.random() * 0.3).toFixed(2) : '1',
+                borderRadius: Math.random() > 0.85 ? `${getRandomInt(5, 15)}px` : '0',
+                padding: Math.random() > 0.8 ? `${getRandomInt(5, 15)}px` : '0',
+                border: Math.random() > 0.9 ? `${getRandomInt(1, 3)}px solid ${getRandomElement(COLOR_SCHEMES)}` : 'none'
+            };
+        }
+
+        /**
+         * Format name based on various signature formats
+         * @param {string} firstName - User's first name
+         * @param {string} lastName - User's last name
+         * @param {number} formatType - Format type identifier
+         * @returns {string} - Formatted signature text
+         */
+        function formatSignature(firstName, lastName, formatType) {
+            const formats = [
+                // Standard formats
+                `${firstName} ${lastName}`,
+                `${firstName.charAt(0).toUpperCase()}${firstName.slice(1)} ${lastName.charAt(0).toUpperCase()}${lastName.slice(1)}`,
+                
+                // Initial variations
+                `${firstName.charAt(0)}. ${lastName}`,
+                `${firstName} ${lastName.charAt(0)}.`,
+                `${firstName.charAt(0)}${lastName.charAt(0)}`,
+                `${firstName.charAt(0)}. ${lastName.charAt(0)}.`,
+                
+                // Reversed
+                `${lastName}, ${firstName}`,
+                `${lastName} ${firstName}`,
+                
+                // Stylized
+                `${firstName.toUpperCase()} ${lastName.toLowerCase()}`,
+                `${firstName.toLowerCase()} ${lastName.toUpperCase()}`,
+                
+                // With decorative elements
+                `~ ${firstName} ${lastName} ~`,
+                `* ${firstName} ${lastName} *`,
+                `${firstName} • ${lastName}`,
+                `${firstName} ∞ ${lastName}`,
+                `${firstName} ❋ ${lastName}`,
+                
+                // Creative separators
+                `${firstName} | ${lastName}`,
+                `${firstName} / ${lastName}`,
+                `${firstName} & ${lastName}`,
+                `${firstName} + ${lastName}`,
+                
+                // Bracketed
+                `[${firstName} ${lastName}]`,
+                `(${firstName} ${lastName})`,
+                `{${firstName} ${lastName}}`,
+                
+                // With titles/suffixes
+                `Dr. ${firstName} ${lastName}`,
+                `${firstName} ${lastName}, PhD`,
+                `${firstName} ${lastName} MD`,
+                `Mr. ${firstName} ${lastName}`,
+                `Ms. ${firstName} ${lastName}`,
+                
+                // Artistic
+                `✦ ${firstName} ${lastName} ✦`,
+                `♦ ${firstName} ${lastName} ♦`,
+                `◆ ${firstName} ${lastName} ◆`,
+                `★ ${firstName} ${lastName} ★`,
+                `♥ ${firstName} ${lastName} ♥`,
+                
+                // Monogram styles
+                `${firstName.charAt(0)}${lastName.charAt(0)}${firstName.charAt(0)}`,
+                `${lastName.charAt(0)}${firstName.charAt(0)}${lastName.charAt(0)}`,
+                
+                // Spaced out
+                firstName.split('').join(' ') + ' ' + lastName.split('').join(' '),
+                
+                // First name emphasis
+                `${firstName.toUpperCase()} ${lastName}`,
+                `${firstName} ${lastName.toUpperCase()}`,
+                
+                // Custom creative formats
+                `${firstName}${lastName}`,
+                `${firstName}_${lastName}`,
+                `${firstName}-${lastName}`,
+                `${firstName}@${lastName}`,
+                `${firstName}#${lastName}`
+            ];
+            
+            return formats[formatType % formats.length];
+        }
+
+        /**
+         * Apply CSS styles to a signature element
+         * @param {HTMLElement} element - DOM element to style
+         * @param {object} styles - Style object with CSS properties
+         */
+        function applyStyles(element, styles) {
+            try {
+                Object.keys(styles).forEach(property => {
+                    // Convert camelCase to kebab-case for CSS properties
+                    const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+                    element.style.setProperty(cssProperty, styles[property]);
+                });
+            } catch (error) {
+                console.warn('Error applying styles:', error);
+            }
+        }
+
+        /**
+         * Create a single signature card element
+         * @param {object} signature - Signature configuration object
+         * @param {number} index - Signature index
+         * @returns {HTMLElement} - Signature card DOM element
+         */
+        function createSignatureCard(signature, index) {
+            const card = document.createElement('div');
+            card.className = 'signature-card';
+            
+            // Create signature preview
+            const preview = document.createElement('div');
+            preview.className = 'signature-preview';
+            preview.style.background = signature.styles.background;
+            
+            const signatureText = document.createElement('div');
+            signatureText.className = 'signature-text';
+            signatureText.textContent = signature.text;
+            
+            // Apply signature styles
+            applyStyles(signatureText, signature.styles);
+            
+            preview.appendChild(signatureText);
+            
+            // Create signature info
+            const info = document.createElement('div');
+            info.className = 'signature-info';
+            
+            const number = document.createElement('span');
+            number.className = 'signature-number';
+            number.textContent = `#${index + 1}`;
+            
+            const style = document.createElement('span');
+            style.className = 'signature-style';
+            style.textContent = signature.styleName;
+            
+            info.appendChild(number);
+            info.appendChild(style);
+            
+            // Create copy button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy Signature';
+            copyBtn.onclick = () => copySignature(signature.text, copyBtn);
+            
+            // Assemble card
+            card.appendChild(preview);
+            card.appendChild(info);
+            card.appendChild(copyBtn);
+            
+            return card;
+        }
+
+        /**
+         * Copy signature text to clipboard
+         * @param {string} text - Text to copy
+         * @param {HTMLElement} button - Copy button element for feedback
+         */
+        async function copySignature(text, button) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, CONFIG.COPY_FEEDBACK_DURATION);
+            } catch (error) {
+                console.error('Failed to copy to clipboard:', error);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    button.textContent = 'Copied!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = 'Copy Signature';
+                        button.classList.remove('copied');
+                    }, CONFIG.COPY_FEEDBACK_DURATION);
+                } catch (fallbackError) {
+                    console.error('Fallback copy failed:', fallbackError);
+                    alert('Copy failed. Please select and copy manually.');
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        /**
+         * Display generation statistics
+         * @param {number} totalGenerated - Total number of signatures generated
+         * @param {number} generationTime - Time taken to generate signatures
+         */
+        function displayStats(totalGenerated, generationTime) {
+            const statsContainer = document.getElementById('statsContainer');
+            const avgTime = (generationTime / totalGenerated).toFixed(2);
+            
+            statsContainer.innerHTML = `
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">${totalGenerated}</div>
+                        <div class="stat-label">Signatures Generated</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${generationTime}ms</div>
+                        <div class="stat-label">Total Generation Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${avgTime}ms</div>
+                        <div class="stat-label">Average Time per Signature</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${FONT_FAMILIES.length}</div>
+                        <div class="stat-label">Different Font Families</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Show loading state
+         */
+        function showLoading() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            loadingContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Generating your unique signatures...</div>
+                    <div style="font-size: 0.9rem; margin-top: 10px; color: #888;">
+                        Creating ${CONFIG.SIGNATURE_COUNT} variations with different styles and fonts
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Hide loading state
+         */
+        function hideLoading() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            loadingContainer.innerHTML = '';
+        }
+
+        /**
+         * Main function to generate all signatures
+         */
+        async function generateSignatures() {
+            // Prevent multiple simultaneous generations
+            if (isGenerating) {
+                return;
+            }
+
+            // Get user input
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+
+            // Validate input
+            const validation = validateInput(firstName, lastName);
+            if (!validation.isValid) {
+                displayErrors(validation.errors);
+                return;
+            }
+
+            // Clear previous errors
+            displayErrors([]);
+
+            // Set loading state
+            isGenerating = true;
+            const generateBtn = document.querySelector('.generate-btn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            showLoading();
+
+            // Clear previous results
+            generatedSignatures = [];
+            const signaturesContainer = document.getElementById('signaturesContainer');
+            signaturesContainer.innerHTML = '';
+
+            const startTime = performance.now();
+
+            try {
+                // Generate signatures with performance optimization
+                const signatures = [];
+                
+                for (let i = 0; i < CONFIG.SIGNATURE_COUNT; i++) {
+                    const signature = {
+                        text: formatSignature(firstName, lastName, i),
+                        styles: generateSignatureStyle(i),
+                        styleName: getRandomElement(SIGNATURE_STYLES)
+                    };
+                    signatures.push(signature);
+
+                    // Performance optimization: batch DOM updates
+                    if ((i + 1) % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.GENERATION_DELAY));
+                    }
+                }
+
+                generatedSignatures = signatures;
+
+                // Create signature grid
+                const signaturesGrid = document.createElement('div');
+                signaturesGrid.className = 'signatures-grid';
+
+                // Create signature cards in batches for better performance
+                const batchSize = 20;
+                for (let i = 0; i < signatures.length; i += batchSize) {
+                    const batch = signatures.slice(i, i + batchSize);
+                    
+                    batch.forEach((signature, batchIndex) => {
+                        const card = createSignatureCard(signature, i + batchIndex);
+                        signaturesGrid.appendChild(card);
+                    });
+
+                    // Allow UI to update between batches
+                    if (i + batchSize < signatures.length) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+
+                signaturesContainer.appendChild(signaturesGrid);
+
+                const endTime = performance.now();
+                const generationTime = Math.round(endTime - startTime);
+
+                // Display statistics
+                displayStats(CONFIG.SIGNATURE_COUNT, generationTime);
+
+                // Scroll to results
+                setTimeout(() => {
+                    signaturesContainer.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error('Error generating signatures:', error);
+                displayErrors(['An error occurred while generating signatures. Please try again.']);
+            } finally {
+                // Reset loading state
+                isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Signatures';
+                hideLoading();
+            }
+        }
+
+        /**
+         * Initialize the application
+         */
+        function initializeApp() {
+            // Add event listeners for Enter key on inputs
+            const inputs = document.querySelectorAll('#firstName, #lastName');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        generateSignatures();
+                    }
+                });
+
+                // Clear errors on input
+                input.addEventListener('input', function() {
+                    const errorContainer = document.getElementById('errorContainer');
+                    if (errorContainer.innerHTML) {
+                        displayErrors([]);
+                    }
+                });
+            });
+
+            // Focus on first input
+            document.getElementById('firstName').focus();
+
+            // Add some sample signatures on page load for demonstration
+            console.log('Advanced Signature Generator initialized');
+            console.log(`Configured to generate ${CONFIG.SIGNATURE_COUNT} unique signatures`);
+            console.log(`Using ${FONT_FAMILIES.length} different font families`);
+        }
+
+        /**
+         * Handle responsive design changes
+         */
+        function handleResize() {
+            // Recalculate grid layout on resize if needed
+            const signaturesGrid = document.querySelector('.signatures-grid');
+            if (signaturesGrid) {
+                // Force repaint for better responsive behavior
+                signaturesGrid.style.display = 'none';
+                signaturesGrid.offsetHeight; // Trigger reflow
+                signaturesGrid.style.display = 'grid';
+            }
+        }
+
+        // Event listeners for app initialization and responsive behavior
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        window.addEventListener('resize', handleResize);
+
+        // Performance monitoring (optional)
+        if (typeof performance !== 'undefined' && performance.mark) {
+            performance.mark('app-start');
+            window.addEventListener('load', () => {
+                performance.mark('app-loaded');
+                performance.measure('app-load-time', 'app-start', 'app-loaded');
+                const measure = performance.getEntriesByName('app-load-time')[0];
+                console.log(`App loaded in ${measure.duration.toFixed(2)}ms`);
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter to generate signatures
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!isGenerating) {
+                    generateSignatures();
+                }
+            }
+            
+            // Escape to clear results
+            if (e.key === 'Escape') {
+                const signaturesContainer = document.getElementById('signaturesContainer');
+                const statsContainer = document.getElementById('statsContainer');
+                if (signaturesContainer.innerHTML || statsContainer.innerHTML) {
+                    signaturesContainer.innerHTML = '';
+                    statsContainer.innerHTML = '';
+                    generatedSignatures = [];
+                }
+            }
+        });
+
+        // Export functionality (for potential future use)
+        window.signatureGenerator = {
+            generateSignatures,
+            getGeneratedSignatures: () => generatedSignatures,
+            config: CONFIG
+        };
+    </script>
+</body>
+</html>
